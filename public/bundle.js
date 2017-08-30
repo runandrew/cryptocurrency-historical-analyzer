@@ -22450,6 +22450,8 @@ var _Input = __webpack_require__(188);
 
 var _Input2 = _interopRequireDefault(_Input);
 
+var _exchange = __webpack_require__(191);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -22486,6 +22488,10 @@ var OtterComponentWrapper = function (_React$Component) {
         _this2.setState({
           data: data
         });
+      });
+
+      (0, _exchange.getProducts)().then(function (products) {
+        console.log(products);
       });
     }
   }, {
@@ -22697,6 +22703,109 @@ var Input = function (_React$Component) {
 }(React.Component);
 
 exports.default = Input;
+
+/***/ }),
+/* 189 */,
+/* 190 */,
+/* 191 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getProducts = undefined;
+
+var _gdax = __webpack_require__(192);
+
+// API
+/** API call to get a list of products */
+var getProducts = exports.getProducts = function getProducts() {
+  return (0, _gdax.fetchProducts)().then(function (products) {
+    return mapProducts(products);
+  });
+};
+
+// Helpers
+var mapProducts = function mapProducts(products) {
+  return products.map(function (product) {
+    return {
+      id: product.id,
+      baseCurrency: product.base_currency,
+      quoteCurrency: product.quote_currency,
+      quoteIncrement: product.quote_increment,
+      displayName: product.display_name
+    };
+  });
+};
+
+var mapDayStats = function mapDayStats(stats) {
+  return {
+    open: stats.open,
+    high: stats.high,
+    low: stats.low,
+    volume: stats.volume,
+    volume30Day: stats.volume_30day,
+    last: stats.last
+  };
+};
+
+/***/ }),
+/* 192 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.fetchProductDayStats = exports.fetchProducts = undefined;
+
+var _api = __webpack_require__(193);
+
+// Constants
+var GDAX_API = "https://api.gdax.com";
+
+// Types
+
+
+// API
+/** GDAX API: gets a list of products */
+var fetchProducts = exports.fetchProducts = function fetchProducts() {
+  return (0, _api.get)({ path: GDAX_API + "/products" });
+};
+
+/** GDAX API: gets a product's 24hr stats */
+var fetchProductDayStats = exports.fetchProductDayStats = function fetchProductDayStats(productId) {
+  return (0, _api.get)({
+    path: GDAX_API + "/products/" + productId + "/stats"
+  });
+};
+
+/***/ }),
+/* 193 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var get = exports.get = function get(_ref) {
+  var path = _ref.path;
+
+  return fetch(path, {
+    method: "GET"
+  }).then(function (res) {
+    return res.json();
+  }).catch(function (err) {
+    throw err;
+  });
+};
 
 /***/ })
 /******/ ]);

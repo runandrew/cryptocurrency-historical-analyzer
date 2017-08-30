@@ -5,6 +5,7 @@ import type { Otter } from "../utils/db";
 import { loadDb } from "../utils/db";
 import OtterComponent from "./OtterComponent.jsx";
 import Input from "./Input.jsx";
+import { getProducts } from "../utils/exchange";
 
 type Props = {};
 type State = {
@@ -33,6 +34,10 @@ class OtterComponentWrapper extends React.Component {
       this.setState({
         data: data
       });
+    });
+
+    getProducts().then(products => {
+      console.log(products);
     });
   }
 
