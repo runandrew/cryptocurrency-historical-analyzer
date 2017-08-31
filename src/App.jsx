@@ -2,6 +2,8 @@
 
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
+import { StyletronProvider } from "styletron-react";
+import Styletron from "styletron-client";
 
 import ReturnWrapper from "./components/ReturnWrapper.jsx";
 
@@ -9,7 +11,9 @@ class App extends Component {
   render() {
     return (
       <div>
-        <ReturnWrapper />
+        <StyletronProvider styletron={new Styletron()}>
+          <ReturnWrapper />
+        </StyletronProvider>
       </div>
     );
   }
