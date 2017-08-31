@@ -3,13 +3,13 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 
-import OtterComponentWrapper from "./components/OtterComponentWrapper.jsx";
+import ReturnWrapper from "./components/ReturnWrapper.jsx";
 
 class App extends Component {
   render() {
     return (
       <div>
-        <OtterComponentWrapper />
+        <ReturnWrapper />
       </div>
     );
   }

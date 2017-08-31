@@ -1,8 +1,9 @@
+// @flow
 type ApiCall = {
   path: string
 };
 
-export const get = ({ path }: ApiCall): Promise => {
+export const get = ({ path }: ApiCall): Promise<*> => {
   return fetch(path, {
     method: "GET"
   })

@@ -1,4 +1,16 @@
-import { fetchProducts, fetchProductDayStats } from "./apis/gdax";
+// @flow
+
+import {
+  fetchProducts,
+  fetchProductDayStats,
+  fetchHistoryRange
+} from "./apis/gdax";
+import type {
+  GdaxDayStats,
+  GdaxProduct,
+  GdaxHistoryPoint,
+  GdaxHistoryRangeInput
+} from "./apis/gdax";
 
 type Product = {
   id: string,
@@ -17,11 +29,36 @@ type DayStats = {
   last: string
 };
 
+export type HistoryRangePoint = {
+  time: number,
+  low: number,
+  high: number,
+  open: number,
+  close: number,
+  volume: number
+};
+
 // API
 /** API call to get a list of products */
-export const getProducts = (): Array<Product> => {
+export const getProducts = (): Promise<Array<Product>> => {
   return fetchProducts().then(products => {
     return mapProducts(products);
+  });
+};
+
+/** API call to get the 24hr stats for a product */
+export const getProductDayStats = (productId: string): Promise<DayStats> => {
+  return fetchProductDayStats(productId).then(stats => {
+    return mapDayStats(stats);
+  });
+};
+
+/** API call to get history range */
+export const getHistoryRange = (
+  settings: GdaxHistoryRangeInput
+): Promise<Array<HistoryRangePoint>> => {
+  return fetchHistoryRange(settings).then(historyRanges => {
+    return mapHistoryRange(historyRanges);
   });
 };
 
@@ -45,4 +82,17 @@ const mapDayStats = (stats: GdaxDayStats): DayStats => {
     volume30Day: stats.volume_30day,
     last: stats.last
   };
+};
+
+const mapHistoryRange = (
+  ranges: Array<GdaxHistoryPoint>
+): Array<HistoryRangePoint> => {
+  return ranges.map(singlePoint => ({
+    time: singlePoint[0],
+    low: singlePoint[1],
+    high: singlePoint[2],
+    open: singlePoint[3],
+    close: singlePoint[4],
+    volume: singlePoint[5]
+  }));
 };

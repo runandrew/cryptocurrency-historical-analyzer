@@ -7,9 +7,7 @@ type Props = {
   otter: Otter
 };
 
-class OtterComponent extends React.Component {
-  props: Props;
-
+class OtterComponent extends React.Component<void, Props, void> {
   render() {
     const { name, picUrl } = this.props.otter;
     return (

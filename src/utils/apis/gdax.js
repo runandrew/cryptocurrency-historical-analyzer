@@ -6,8 +6,12 @@ import { get } from "./api";
 const GDAX_API = "https://api.gdax.com";
 
 // Types
+export type Seconds = number;
+export type DateISO = string;
+export type GdaxProductId = string;
+
 export type GdaxProduct = {
-  id: string,
+  id: GdaxProductId,
   base_currency: string,
   quote_currency: string,
   base_min_size: string,
@@ -26,6 +30,15 @@ export type GdaxDayStats = {
   volume_30day: string
 };
 
+export type GdaxHistoryRangeInput = {
+  productId: GdaxProductId,
+  start: DateISO,
+  end: DateISO,
+  granularity: Seconds
+};
+
+export type GdaxHistoryPoint = [number, number, number, number, number, number];
+
 // API
 /** GDAX API: gets a list of products */
 export const fetchProducts = (): Promise<Array<GdaxProduct>> => {
@@ -33,8 +46,22 @@ export const fetchProducts = (): Promise<Array<GdaxProduct>> => {
 };
 
 /** GDAX API: gets a product's 24hr stats */
-export const fetchProductDayStats = (productId: string): GdaxDayStats => {
+export const fetchProductDayStats = (
+  productId: string
+): Promise<GdaxDayStats> => {
   return get({
     path: `${GDAX_API}/products/${productId}/stats`
+  });
+};
+
+/** GDAX API: get a product's history within a range. `granularity` is in seconds, `start/end` in ISO time */
+export const fetchHistoryRange = ({
+  productId,
+  start,
+  end,
+  granularity
+}: GdaxHistoryRangeInput): Promise<Array<GdaxHistoryPoint>> => {
+  return get({
+    path: `${GDAX_API}/products/${productId}/candles?start=${start}&end=${end}&granularity=${granularity}`
   });
 };

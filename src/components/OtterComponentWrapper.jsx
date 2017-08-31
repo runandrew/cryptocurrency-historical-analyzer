@@ -13,8 +13,7 @@ type State = {
   filter: string
 };
 
-class OtterComponentWrapper extends React.Component {
-  props: Props;
+class OtterComponentWrapper extends React.Component<void, Props, State> {
   state: State;
   handleOnChange: Function;
 
