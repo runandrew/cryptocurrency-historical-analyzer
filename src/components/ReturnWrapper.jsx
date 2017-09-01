@@ -5,10 +5,20 @@ import Return from "./Return.jsx";
 import type { HistoryRangePoint } from "../utils/exchange";
 import { getHistoryRange } from "../utils/exchange";
 import { createDateObject, convertDateObjectToISOString } from "../utils/date";
+import { has as ldHas, head as ldHead, last as ldLast } from "lodash";
+
+export type HistoryRangePointComparison = {
+  startPrice: number,
+  endPrice: number,
+  startDate: number,
+  endData: number,
+  priceDiff: number | null
+};
 
 type Props = {};
+
 type State = {
-  range?: Array<HistoryRangePoint>
+  historyComparison?: HistoryRangePointComparison
 };
 
 class ReturnWrapper extends React.Component<void, Props, State> {
@@ -18,7 +28,7 @@ class ReturnWrapper extends React.Component<void, Props, State> {
     super(props);
 
     this.state = {
-      range: undefined
+      historyComparison: undefined
     };
   }
 
@@ -32,20 +42,47 @@ class ReturnWrapper extends React.Component<void, Props, State> {
       granularity: 60 * 60 * 24
     }).then(historyRange => {
       this.setState({
-        range: historyRange
+        historyComparison: mapHistoryDataStartEnd(historyRange)
       });
     });
   }
 
   render() {
-    const { range } = this.state;
+    const { historyComparison } = this.state;
 
     return (
       <div>
-        {range ? <Return data={this.state.range} /> : <span>Loading...</span>}
+        {historyComparison ? (
+          <Return data={this.state.historyComparison} />
+        ) : (
+          <span>Loading...</span>
+        )}
       </div>
     );
   }
+}
+
+function calculateDiff(first: *, second: *, property: string): * {
+  if (ldHas(first, property) && ldHas(second, property)) {
+    return second[property] - first[property];
+  } else {
+    return null;
+  }
+}
+
+function mapHistoryDataStartEnd(
+  data: Array<HistoryRangePoint>
+): HistoryRangePointComparison {
+  const start = ldLast(data);
+  const end = ldHead(data);
+
+  return {
+    startPrice: start.open,
+    endPrice: end.open,
+    startDate: start.time,
+    endData: end.time,
+    priceDiff: calculateDiff(start, end, "open")
+  };
 }
 
 export default ReturnWrapper;
