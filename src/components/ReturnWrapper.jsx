@@ -14,7 +14,8 @@ export type HistoryRangePointComparison = {
   startDate: number,
   endData: number,
   priceDiff: number,
-  pctChange: number
+  pctChange: number,
+  productId: string
 };
 
 type Props = {
