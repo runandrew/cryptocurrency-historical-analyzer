@@ -12,7 +12,7 @@ class App extends Component {
     return (
       <div>
         <StyletronProvider styletron={new Styletron()}>
-          <ReturnWrapper />
+          <ReturnWrapper productId={"BTC-USD"} />
         </StyletronProvider>
       </div>
     );

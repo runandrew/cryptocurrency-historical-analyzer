@@ -7,20 +7,25 @@ import { getHistoryRange } from "../utils/exchange";
 import { createDateObject, convertDateObjectToISOString } from "../utils/date";
 import { has as ldHas, head as ldHead, last as ldLast } from "lodash";
 
+// Types
 export type HistoryRangePointComparison = {
   startPrice: number,
   endPrice: number,
   startDate: number,
   endData: number,
-  priceDiff: number | null
+  priceDiff: number,
+  pctChange: number
 };
 
-type Props = {};
+type Props = {
+  productId: string
+};
 
 type State = {
   historyComparison?: HistoryRangePointComparison
 };
 
+// Component
 class ReturnWrapper extends React.Component<void, Props, State> {
   state: State;
 
@@ -33,16 +38,19 @@ class ReturnWrapper extends React.Component<void, Props, State> {
   }
 
   componentDidMount(): void {
+    const { productId } = this.props;
     const start = createDateObject({ year: 2017, month: 7, date: 4 });
 
-    getHistoryRange({
-      productId: "BTC-USD",
+    const getHistoryInfo = {
+      productId: productId,
       start: convertDateObjectToISOString(start),
       end: convertDateObjectToISOString(new Date()),
       granularity: 60 * 60 * 24
-    }).then(historyRange => {
+    };
+
+    getHistoryRange(getHistoryInfo).then(historyRange => {
       this.setState({
-        historyComparison: mapHistoryDataStartEnd(historyRange)
+        historyComparison: mapHistoryDataStartEnd(historyRange, productId)
       });
     });
   }
@@ -62,26 +70,32 @@ class ReturnWrapper extends React.Component<void, Props, State> {
   }
 }
 
+// Helpers
 function calculateDiff(first: *, second: *, property: string): * {
   if (ldHas(first, property) && ldHas(second, property)) {
     return second[property] - first[property];
   } else {
-    return null;
+    return 0;
   }
 }
 
 function mapHistoryDataStartEnd(
-  data: Array<HistoryRangePoint>
+  data: Array<HistoryRangePoint>,
+  productId: string
 ): HistoryRangePointComparison {
   const start = ldLast(data);
   const end = ldHead(data);
+  const priceDiff = calculateDiff(start, end, "open");
+  const pctChange = (end.open / start.open - 1) * 100;
 
   return {
     startPrice: start.open,
     endPrice: end.open,
     startDate: start.time,
     endData: end.time,
-    priceDiff: calculateDiff(start, end, "open")
+    priceDiff,
+    productId,
+    pctChange
   };
 }
 

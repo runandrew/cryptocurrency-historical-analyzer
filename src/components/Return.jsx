@@ -14,7 +14,13 @@ class Return extends React.Component<void, Props, void> {
     const { data } = this.props;
     console.log(data);
 
-    return <div />;
+    return (
+      <div>
+        <p>{`Start Price: ${data.startPrice}`}</p>
+        <p>{`End Price: ${data.endPrice}`}</p>
+        <p>{`Percent Change: ${data.pctChange}`}</p>
+      </div>
+    );
   }
 }
 
