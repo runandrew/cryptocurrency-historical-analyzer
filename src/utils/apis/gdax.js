@@ -8,6 +8,7 @@ const GDAX_API = "https://api.gdax.com";
 // Types
 export type Seconds = number;
 export type DateISO = string;
+export type DateEpoch = number;
 export type GdaxProductId = string;
 
 export type GdaxProduct = {
@@ -39,6 +40,11 @@ export type GdaxHistoryRangeInput = {
 
 export type GdaxHistoryPoint = [number, number, number, number, number, number];
 
+export type GdaxServerTime = {
+  iso: DateISO,
+  epoch: DateEpoch
+};
+
 // API
 /** GDAX API: gets a list of products */
 export const fetchProducts = (): Promise<Array<GdaxProduct>> => {
@@ -64,4 +70,9 @@ export const fetchHistoryRange = ({
   return get({
     path: `${GDAX_API}/products/${productId}/candles?start=${start}&end=${end}&granularity=${granularity}`
   });
+};
+
+/** GDAX API: get the server's time */
+export const fetchServerTime = (): Promise<GdaxServerTime> => {
+  return get({ path: `${GDAX_API}/time` });
 };

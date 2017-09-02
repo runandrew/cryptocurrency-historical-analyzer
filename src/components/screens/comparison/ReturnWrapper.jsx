@@ -2,9 +2,16 @@
 
 import * as React from "react";
 import Return from "./Return.jsx";
-import type { HistoryRangePoint } from "../utils/exchange";
-import { getHistoryRange } from "../utils/exchange";
-import { createDateObject, convertDateObjectToISOString } from "../utils/date";
+import type { HistoryRangePoint } from "../../../utils/exchange";
+import type { GdaxHistoryRangeInput } from "../../../utils/apis/gdax";
+import {
+  getHistoryRange,
+  createRandomHistoryRequestArray
+} from "../../../utils/exchange";
+import {
+  createDateObject,
+  convertDateObjectToISOString
+} from "../../../utils/date";
 import { has as ldHas, head as ldHead, last as ldLast } from "lodash";
 
 // Types
@@ -12,7 +19,7 @@ export type HistoryRangePointComparison = {
   startPrice: number,
   endPrice: number,
   startDate: number,
-  endData: number,
+  endDate: number,
   priceDiff: number,
   pctChange: number,
   productId: string
@@ -23,7 +30,7 @@ type Props = {
 };
 
 type State = {
-  historyComparison?: HistoryRangePointComparison
+  historyComparisons?: Array<HistoryRangePointComparison>
 };
 
 // Component
@@ -34,35 +41,35 @@ class ReturnWrapper extends React.Component<void, Props, State> {
     super(props);
 
     this.state = {
-      historyComparison: undefined
+      historyComparisons: undefined
     };
   }
 
   componentDidMount(): void {
     const { productId } = this.props;
-    const start = createDateObject({ year: 2017, month: 7, date: 4 });
+    const historyRequests = createRandomHistoryRequestArray(5);
 
-    const getHistoryInfo = {
-      productId: productId,
-      start: convertDateObjectToISOString(start),
-      end: convertDateObjectToISOString(new Date()),
-      granularity: 60 * 60 * 24
-    };
-
-    getHistoryRange(getHistoryInfo).then(historyRange => {
-      this.setState({
-        historyComparison: mapHistoryDataStartEnd(historyRange, productId)
+    Promise.all(historyRequests.map(getHistoryRange))
+      .then(fulfilledRequests => {
+        this.setState({
+          historyComparisons: fulfilledRequests.map(mapHistoryDataStartEnd)
+        });
+      })
+      .catch(error => {
+        console.error(error);
       });
-    });
   }
 
   render() {
-    const { historyComparison } = this.state;
-
+    const { historyComparisons } = this.state;
     return (
       <div>
-        {historyComparison ? (
-          <Return data={this.state.historyComparison} />
+        {historyComparisons ? (
+          <div>
+            {historyComparisons.map((comparison, i) => (
+              <Return key={i} data={comparison} />
+            ))}
+          </div>
         ) : (
           <span>Loading...</span>
         )}
@@ -81,8 +88,7 @@ function calculateDiff(first: *, second: *, property: string): * {
 }
 
 function mapHistoryDataStartEnd(
-  data: Array<HistoryRangePoint>,
-  productId: string
+  data: Array<HistoryRangePoint>
 ): HistoryRangePointComparison {
   const start = ldLast(data);
   const end = ldHead(data);
@@ -93,9 +99,9 @@ function mapHistoryDataStartEnd(
     startPrice: start.open,
     endPrice: end.open,
     startDate: start.time,
-    endData: end.time,
+    endDate: end.time,
     priceDiff,
-    productId,
+    productId: start.productId,
     pctChange
   };
 }

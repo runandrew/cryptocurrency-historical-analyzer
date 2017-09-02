@@ -11,6 +11,11 @@ import type {
   GdaxHistoryPoint,
   GdaxHistoryRangeInput
 } from "./apis/gdax";
+import {
+  convertDateObjectToISOString,
+  createDateObject,
+  createDateObjectNow
+} from "./date";
 
 type Product = {
   id: string,
@@ -35,7 +40,8 @@ export type HistoryRangePoint = {
   high: number,
   open: number,
   close: number,
-  volume: number
+  volume: number,
+  productId: string
 };
 
 // API
@@ -58,7 +64,7 @@ export const getHistoryRange = (
   settings: GdaxHistoryRangeInput
 ): Promise<Array<HistoryRangePoint>> => {
   return fetchHistoryRange(settings).then(historyRanges => {
-    return mapHistoryRange(historyRanges);
+    return mapHistoryRange(historyRanges, settings.productId);
   });
 };
 
@@ -85,7 +91,8 @@ const mapDayStats = (stats: GdaxDayStats): DayStats => {
 };
 
 const mapHistoryRange = (
-  ranges: Array<GdaxHistoryPoint>
+  ranges: Array<GdaxHistoryPoint>,
+  productId
 ): Array<HistoryRangePoint> => {
   return ranges.map(singlePoint => ({
     time: singlePoint[0],
@@ -93,6 +100,36 @@ const mapHistoryRange = (
     high: singlePoint[2],
     open: singlePoint[3],
     close: singlePoint[4],
-    volume: singlePoint[5]
+    volume: singlePoint[5],
+    productId
   }));
+};
+
+const createRandomHistoryRequest = (): GdaxHistoryRangeInput => {
+  return {
+    productId: "LTC-USD",
+    start: convertDateObjectToISOString(
+      createDateObject({
+        year: 2017,
+        month: 7,
+        date: parseInt(Math.random() * 20 + 1, 10)
+      })
+    ),
+    end: convertDateObjectToISOString(
+      createDateObject({
+        year: 2017,
+        month: 7,
+        date: parseInt(Math.random() * 5 + 25, 10)
+      })
+    ),
+    granularity: 60 * 60 * 24
+  };
+};
+
+export const createRandomHistoryRequestArray = (
+  numRequest: number
+): Array<GdaxHistoryRangeInput> => {
+  return Array(numRequest)
+    .fill(1)
+    .map(() => createRandomHistoryRequest());
 };

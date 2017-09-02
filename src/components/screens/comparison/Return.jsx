@@ -1,10 +1,11 @@
 // @flow
 
 import * as React from "react";
-import type { HistoryRangePoint } from "../utils/exchange";
+import type { HistoryRangePoint } from "../../../utils/exchange";
 import { head, last } from "lodash";
 import type { HistoryRangePointComparison } from "./ReturnWrapper";
 import { styled } from "styletron-react";
+import { convertEpochToDate } from "../../../utils/date";
 
 type Props = {
   data: HistoryRangePointComparison
@@ -17,8 +18,12 @@ class Return extends React.Component<void, Props, void> {
       <CardBack>
         <LeftDataBack>
           <ProductTitle>{data.productId}</ProductTitle>
-          <TextRow>{`Start Price: ${data.startPrice}`}</TextRow>
-          <TextRow>{`End Price: ${data.endPrice}`}</TextRow>
+          <TextRow>{`Start Price: ${data.startPrice.toFixed(2)}`}</TextRow>
+          <TextRow>{`Start Date: ${convertEpochToDate(
+            data.startDate
+          )}`}</TextRow>
+          <TextRow>{`End Price: ${data.endPrice.toFixed(2)}`}</TextRow>
+          <TextRow>{`End Date: ${convertEpochToDate(data.endDate)}`}</TextRow>
         </LeftDataBack>
         <RightDataBack>
           <PercentageText>{`${parseInt(data.pctChange, 10)}`}</PercentageText>
@@ -32,14 +37,17 @@ class Return extends React.Component<void, Props, void> {
 const CardBack = styled("div", {
   width: "700px",
   minHeight: "200px",
-  margin: "0 auto",
+  margin: "8px auto",
   flexDirection: "row",
   display: "flex",
   backgroundColor: "#ffffff",
   border: "1px solid #DAE1E9",
   borderRadius: "3px",
   padding: "16px",
-  boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)"
+  boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+  ":hover": {
+    boxShadow: "2px 2px 3px 0 rgba(0,0,0,0.1)"
+  }
 });
 
 const LeftDataBack = styled("div", {
